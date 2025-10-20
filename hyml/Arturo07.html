@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Películas</title>
+  <style>
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 50px;
+      margin-bottom: 30px;
+      font-family: 'Clubbed to Life', sans-serif;
+    }
+
+    form {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 50px;
+      font-family: 'Clubbed to Life', sans-serif;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      outline: none;
+    }
+
+    input[type="submit"] {
+      padding: 10px 20px;
+      margin-left: 10px;
+      border: none;
+      border-radius: 5px;
+      background-color: #333;
+      color: white;
+      cursor: pointer;
+    }
+
+    .movies {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      justify-items: center;
+    }
+
+    .movie {
+      text-align: center;
+    }
+
+    .movie img {
+      width: 100%;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <!--
+  Una API (Interfaz de Programación de Aplicaciones) es un conjunto de reglas y protocolos que permite
+  a dos aplicaciones de software comunicarse entre sí de forma estandarizada. Funciona como un intermediario
+  que procesa solicitudes de datos o funcionalidades y devuelve una respuesta, permitiendo que 
+  aplicaciones como las redes sociales o las apps del clima muestren información de otros servicios
+  sin tener que desarrollarla desde cero.
+  -->
+  
+  <div class="container">
+    <h1>Bienvenidos a mi página de películas</h1>
+    <form id="form">
+      <input type="text" id="search" placeholder="Busca una película">
+      <input type="submit" value="Buscar">
+    </form>
+    <section id="main" class="movies"></section>
+  </div>
+
+  <script>
+  // Cambiamos la API a películas de ciencia ficción populares
+  const API_URL = 'https://api.themoviedb.org/3/discover/movie?api_key=3fd2be6f0c70a2a598f084ddfb75487c&with_genres=878&sort_by=popularity.desc&page=1';
+    const IMG_PATH = 'https://image.tmdb.org/t/p/w500';
+    const SEARCH_API = 'https://api.themoviedb.org/3/search/movie?api_key=3fd2be6f0c70a2a598f084ddfb75487c&query=';
+
+    const main = document.getElementById('main');
+    const form = document.getElementById('form');
+    const search = document.getElementById('search');
+
+    // Obtener películas al inicio
+    getMovies(API_URL);
+
+    async function getMovies(url) {
+      const res = await fetch(url);
+      const data = await res.json();
+      showMovies(data.results);
+    }
+
+    function showMovies(movies) {
+      main.innerHTML = '';
+
+      movies.forEach(movie => {
+        const { title, poster_path, vote_average } = movie;
+        const movieEl = document.createElement('div');
+        movieEl.classList.add('movie');
+
+        movieEl.innerHTML = `
+          <img src="${poster_path ? IMG_PATH + poster_path : 'https://via.placeholder.com/300x450?text=Sin+Imagen'}" alt="${title}">
+          <h3>${title}</h3>
+          <p>⭐ ${vote_average}</p>
+        `;
+
+        main.appendChild(movieEl);
+      });
+    }
+
+    // Evento del formulario de búsqueda
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const searchTerm = search.value;
+      if (searchTerm && searchTerm !== '') {
+        getMovies(SEARCH_API + searchTerm);
+        search.value = '';
+      } else {
+        window.location.reload();
+      }
+    });
+  </script>
+</body>
+</html>
